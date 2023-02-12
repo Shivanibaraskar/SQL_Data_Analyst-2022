@@ -1,0 +1,160 @@
+USE DATAWAREHOUSE SECOND_WAREHOUSE;
+CREATE OR REPLACE TABLE SB_Broker 
+      ( 
+        BrokerID INT,
+        BrokerCode VARCHAR(90),
+        BrokerFullName VARCHAR(100),
+        DistributionNetwork VARCHAR(60),
+        DistributionChannel VARCHAR(60),
+        CommissionScheme VARCHAR(50)
+       );
+
+       
+DESCRIBE TABLE SB_Broker;
+
+CREATE TABLE SB_Productdetails
+      ( ProductID Number(5,2),
+        ProductCategory VARCHAR(50),
+        ProductSubCategory VARCHAR(70),
+        Product VARCHAR(70)
+      );
+DESCRIBE TABLE SB_Productdetails;
+
+CREATE OR REPLACE TABLE SB_Regions
+      ( Region_ID Number(5,2),
+        Region_name VARCHAR(70),
+        Region_County VARCHAR(150),
+        state_code CHAR(2),
+        Region_state VARCHAR(30),
+        Region_type VARCHAR(30),
+        Region_latitude INT,
+        Region_longitude INT,
+        Region_area_code INT,
+        Region_population INT,
+        Region_households INT,
+        Region_median_income INT,
+        Region_land_area INT,
+        Region_water_area INT,
+        Region_time_zone VARCHAR(80)
+      );
+DESCRIBE TABLE SB_Regions;
+
+CREATE OR REPLACE TABLE SB_Customers
+      (
+        CustomerID Number(10,2),
+        LastName VARCHAR(50),
+        FirstName VARCHAR(50),
+        BirthDate VARCHAR(20),
+        Gender VARCHAR(15),
+        ParticipantType	VARCHAR(20),
+        RegionID Number(8,2),
+        MaritalStatus CHAR(10)
+      );
+DESCRIBE TABLE SB_Customers;
+
+CREATE TABLE SB_State_Regions
+      (
+        State_Code_Region CHAR(2),
+        State VARCHAR(40),
+        Region_State VARCHAR(70)
+      );
+DESCRIBE TABLE SB_State_Regions;
+
+CREATE TABLE SB_Priority
+     (
+       Priority_ID Number(2,1),
+       Priority_Description VARCHAR(10)
+     );
+
+CREATE TABLE SB_Statuses
+     (
+       Status_ID Number(2,1),
+       Status_Description CHAR(15)
+     );
+     
+SELECT * FROM SB_Statuses;
+
+CREATE OR REPLACE TABLE SB_Categories
+     (
+       Categories_ID INT,
+       Categories_Description String,
+       Categories_Active INT
+     );
+
+CREATE OR REPLACE TABLE SB_Sources
+     (
+       Source_ID INT,
+       Source_Description String
+     );
+
+CREATE OR REPLACE TABLE SB_Types
+     (
+       Type_ID INT,
+       Type_Description String
+     );
+     
+CREATE OR REPLACE TABLE SB_Complains_Data
+     (
+        ID	INT ,
+        ComplainDate VARCHAR(10),
+        CompletionDate	VARCHAR(10),
+        CustomerID	INT,
+        BrokerID	INT,
+        ProductID	INT,
+        ComplainPriorityID	INT,
+        ComplainTypeID	INT,
+        ComplainSourceID	INT,
+        ComplainCategoryID	INT,
+        ComplainStatusID	INT,
+        AdministratorID	STRING,
+        ClientSatisfaction	VARCHAR(20),
+        ExpectedReimbursement INT
+    );
+
+
+CREATE OR REPLACE TABLE SB_STATUS_HISTORY_DATA
+    (
+      ID INT,
+      ComplaintID INT not null,
+      ComplaintStatusID INT,
+      StatusDate VARCHAR(10)
+    );
+
+SELECT DISTINCT * FROM SB_Complains_Data;---ID is PK
+SELECT DISTINCT * FROM SB_Customers;---CustomerID is PK
+SELECT DISTINCT * FROM SB_Productdetails;---ProductID is PK
+SELECT DISTINCT * FROM SB_Broker;---BrokerID is PK
+SELECT DISTINCT * FROM SB_Regions;---Region_ID is PK
+SELECT DISTINCT * FROM SB_State_Regions;---State_Code_Region
+SELECT DISTINCT * FROM SB_Statuses;---Status_ID is PK
+SELECT DISTINCT * FROM SB_Categories;---Categories_ID is PK
+SELECT DISTINCT * FROM SB_Priority;---Priority_ID is PK
+SELECT DISTINCT * FROM SB_Sources;---Source_ID is PK
+SELECT DISTINCT * FROM SB_Types;---Type_ID is PK
+------------------------------------------------
+
+---MAIN_TASK- Creating a master table
+CREATE OR REPLACE TABLE SB_Master_Complain_Admin AS
+SELECT COMPL.ID,COMPL.CompletionDate, COMPL.ComplainDate,
+CUS.LastName, CUS.FirstName, CUS.BirthDate, CUS.Gender, 
+RG.Region_name, RG.Region_state,BR.BrokerFullName, BR.CommissionScheme,
+CT.Categories_Description, CT.Categories_Active, ST.Status_Description,
+PD.Product, PR.Priority_Description, SU.Source_Description, TY.Type_Description,
+SH.StatusDate 
+
+FROM SB_Complains_Data COMPL
+LEFT OUTER JOIN SB_Customers CUS ON COMPL.CustomerID = CUS.CustomerID
+LEFT OUTER JOIN SB_STATUS_HISTORY_DATA SH ON COMPL.ID = SH.ID
+LEFT OUTER JOIN SB_Regions RG ON CUS.RegionID = RG.Region_ID
+LEFT OUTER JOIN SB_State_Regions SR ON RG.state_code = SR.State_Code_Region
+LEFT OUTER JOIN SB_Broker BR ON COMPL.BrokerID = BR.BrokerID
+LEFT OUTER JOIN SB_Categories CT ON COMPL.ComplainCategoryID = CT.Categories_ID
+LEFT OUTER JOIN SB_Priority PR ON COMPL.ComplainPriorityID = PR.Priority_ID
+LEFT OUTER JOIN SB_Productdetails PD ON COMPL.ProductID = PD.ProductID
+LEFT OUTER JOIN SB_Sources SU ON COMPL.ComplainSourceID = SU.Source_ID
+LEFT OUTER JOIN SB_Types TY ON COMPL.ComplainTypeID = TY.Type_ID
+LEFT OUTER JOIN SB_Statuses ST ON COMPL.ComplainStatusID = ST.Status_ID;
+
+SELECT DISTINCT * FROM SB_Master_Complain_Admin;
+
+SELECT * FROM SB_Master_Complain_Admin WHERE CompletionDate is NULL;
