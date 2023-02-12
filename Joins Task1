@@ -1,0 +1,62 @@
+USE WAREHOUSE "FIRST_WAREHOUSE";
+USE DATABASE "FIRST_AGENTDB";
+CREATE OR REPLACE TABLE cows_one (cnumber_1 int, cbreed varchar(20));
+INSERT INTO cows_one VALUES (1,'Holstein');
+INSERT INTO cows_one VALUES (2,'Guernsey');
+INSERT INTO cows_one VALUES (3,'Angus');
+
+SELECT * FROM cows_one;
+
+CREATE OR REPLACE TABLE cows_two (cnumber_2 int, breeds varchar(20));
+
+INSERT INTO cows_two VALUES (2,'Jersey');
+INSERT INTO cows_two VALUES (3,'Brown Swiss');
+INSERT INTO cows_two VALUES (4,'Ayrshire');
+
+SELECT * FROM cows_two;
+---Inner Join Example
+Select x.*, y.breeds 
+from cows_one as x INNER JOIN cows_two as y ON x.cnumber_1 = y.cnumber_2;
+---Left Join
+Select x.*, y.breeds 
+from cows_one as x Left JOIN cows_two as y ON x.cnumber_1 = y.cnumber_2;
+
+
+CREATE OR REPLACE TABLE OWNER
+(
+   OwnerID INTEGER NOT NULL PRIMARY KEY ,
+   Name VARCHAR2(20),
+   Surname STRING,
+   StreetAddress VARCHAR2(50),
+   City STRING,
+   State CHAR(4),
+   StateFull STRING,
+   ZipCode INTEGER
+);
+CREATE OR REPLACE TABLE PETS
+(
+    PetID VARCHAR(10) NOT NULL PRIMARY KEY,
+    Name VARCHAR(20),
+    Kind STRING,
+    Gender CHAR(7),
+    Age INTEGER,
+    OwnerID INTEGER NOT NULL REFERENCES OWNER 
+);
+SELECT * FROM OWNER; 
+SELECT * FROM PETS;
+
+---Inner Join Example1
+CREATE OR REPLACE TABLE SB_OWNER_PETS AS
+SELECT o.OwnerID,o.Name as Owner_Name, p.PetID, p.Name as Pet_Name,Gender,Age,Kind,ZipCode
+FROM OWNER AS o 
+INNER JOIN PETS AS p on o.OwnerID = p.OwnerID;
+
+SELECT DISTINCT * FROM SB_OWNER_PETS;
+
+---Left Join Example 1
+CREATE OR REPLACE TABLE SB_OWNER_PETS_Inner; AS
+SELECT o.OwnerID,o.Name as Owner_Name, p.PetID, p.Name as Pet_Name,Gender,Age,Kind,ZipCode
+FROM PETS AS p 
+LEFT JOIN OWNER AS o on p.OwnerID = o.OwnerID;
+
+SELECT DISTINCT * FROM SB_OWNER_PETS_Inner;
