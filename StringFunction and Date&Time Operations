@@ -1,0 +1,154 @@
+Use Database "FIRST_AGENTDB";
+CREATE OR REPLACE TABLE Agents
+( 
+  AGENT_CODE VARCHAR(6) NOT NULL PRIMARY KEY,
+  AGENT_NAME VARCHAR(40),
+  WORKING_AREA CHAR(35),
+  COMISSION NUMBER (10,2) DEFAULT 0.05,
+  PHONE_NUMBER VARCHAR(15),
+  COUNTRY CHAR(25)
+);
+DESCRIBE TABLE Agents;
+
+----Inserting the values into the table
+INSERT INTO AGENTS VALUES ('A007', 'Ramasundar', 'Bangalore',0.15,'077-25814763', '');
+INSERT INTO AGENTS(AGENT_CODE,AGENT_NAME,WORKING_AREA) 
+VALUES ('A110', 'Anand', 'Germany');
+INSERT INTO AGENTS VALUES ('A003', 'Alex ', 'London', '0.13', '075-12458969', '');
+INSERT INTO AGENTS VALUES ('A008', 'Alford', 'New York', '0.12', '044-25874365', '');
+INSERT INTO AGENTS VALUES ('A011', 'Ravi Kumar', 'Bangalore', '0.15', '077-45625874', '');
+INSERT INTO AGENTS VALUES ('A010', 'Santakumar', 'Chennai', '0.14', '007-22388644', '');
+INSERT INTO AGENTS VALUES ('A012', 'Lucida', 'San Jose', '0.12', '044-52981425', '');
+INSERT INTO AGENTS VALUES ('A005', 'Anderson', 'Brisban', '0.13', '045-21447739', '');
+INSERT INTO AGENTS VALUES ('A001', 'Subbarao', 'Bangalore', '0.14', '077-12346674', '');
+INSERT INTO AGENTS VALUES ('A002', 'Mukesh', 'Mumbai', '0.11', '029-12358964', '');
+INSERT INTO AGENTS VALUES ('A006', 'McDen', 'London', '0.15', '078-22255588', '');
+INSERT INTO AGENTS VALUES ('A004', 'Ivan', 'Torento', '0.15', '008-22544166', '');
+INSERT INTO AGENTS VALUES ('A009', 'Benjamin', 'Hampshair', '0.11', '008-22536178', '');
+
+SELECT * FROM AGENTS;,
+
+----Replace the blank or null country names by IN
+UPDATE AGENTS
+SET COUNTRY= 'IN' WHERE COUNTRY IS NULL OR COUNTRY= '';
+
+SELECT * FROM AGENTS;
+
+---Sub-String examples
+Select Substring('Shivani Baraskar', 0, 9) as Partial_name;
+SELECT Substr('Anand Kumar Jha', 0, 9) AS Partial_name2;
+
+---To print only agent code substring from Agent code
+Select AGENT_CODE, AGENT_NAME,WORKING_AREA, SUBSTRING(AGENT_CODE,-3,3) AS Partial_name3 FROM AGENTS;
+
+---To combine two strings or two columns
+SELECT CONCAT('SHIVANI', ' BARASKAR');
+---USING PIPE OPERATOR
+SELECT 'SHIVANI' || ' ' || 'BARASKAR';
+
+---If we want to combine two columns of a table 
+SELECT AGENT_CODE || ' ' || AGENT_NAME AS AGENT_DETAILS FROM AGENTS; 
+
+---Assignment on Consumer_complaints table- Create a view, which contains only valid columns (without null) and combine two columns
+
+SELECT * FROM "FIRST_AGENTDB"."PUBLIC"."CONSUMER_COMPLAINTS";
+---Fetched few columns
+CREATE OR REPLACE VIEW SB_CONSUMER_COMPLAINTS_VIEW AS
+SELECT DATE_RECEIVED, PRODUCT_NAME, SUB_PRODUCT, ISSUE, COMPANY, STATE_NAME, ZIP_CODE, SUBMITTED_VIA, DATE_SENT_TO_COMPANY, 
+STATE_NAME || '-'|| ZIP_CODE AS STATE_DETAILS FROM CONSUMER_COMPLAINTS;
+
+DESCRIBE VIEW SB_CONSUMER_COMPLAINTS_VIEW;
+SELECT * FROM SB_CONSUMER_COMPLAINTS_VIEW;
+
+---Clients doesn't want any null value in data
+
+CREATE OR REPLACE VIEW SB_CONSUMER_COMPLAINTS_VIEW AS
+SELECT *, STATE_NAME || '-'|| ZIP_CODE AS STATE_DETAILS FROM CONSUMER_COMPLAINTS
+WHERE SUB_ISSUE IS NOT NULL AND CONSUMER_COMPLAINT_NARRATIVE IS NOT NULL 
+AND COMPANY_PUBLIC_RESPONSE IS NOT NULL AND TAGS IS NOT NULL;
+
+DESCRIBE VIEW SB_CONSUMER_COMPLAINTS_VIEW;
+SELECT * FROM SB_CONSUMER_COMPLAINTS_VIEW;
+
+---TRIM
+select trim('❄-❄ABC-❄-', '❄-');
+SELECT trim('❄-❄ABC-❄-', '❄');
+SELECT TRIM('*****************************TRIM FUNCTION****************', '*');
+SELECT TRIM('********T E S T I*N*G 1 2 3 4********','*') AS TRIMMED_SPACE;
+
+--ltrim
+select ltrim('#000000123', '0#');
+select ltrim('#0000AISHWARYA', '0#');
+select ltrim('      ANAND JHA', '');
+
+---rtrim
+select rtrim('$125.00', '0.');
+select rtrim('ANAND JHA*****', '*');
+
+---To remove the whitespaces/blank spaces from start and end point, we'll use trim function as follows:-
+select TRIM('  Snwoflake Space Remove  ', ' ');
+--To remove the first character from the string you can pass the string in the RTRIM function.
+select LTRIM('Snowflake Remove  ', 'S'); --EXCEL U WILL FIND LEFT
+--To remove the last character from the string you can pass the string in the RTRIM function.
+select RTRIM('Snwoflake Remove', 'e'); --IN EXCEL U WILL FIND RIGHT
+
+--LENGTH FUNCTION
+SELECT LEN(trim('  Snowflake Space Remove  '));
+
+---Split Function 
+SELECT SPLIT('a||', '|');---It takes vertical line as a separator
+SELECT SPLIT('a|*|', '*');---It takes asterisk as a separator 
+
+Create or replace table Split_demo
+(
+   Name varchar(30),
+   Children Char(30)
+);
+Describe table Split_demo;
+INSERT INTO Split_demo Values ('Mark','Marky,Mark Jr,Maria'),('John', 'Johnny, Jane');
+select * from Split_demo;
+
+SELECT SPLIT(CHILDREN, ',') FROM Split_demo;
+
+
+---INITCAP
+select initcap('iqamqinterestedqinqthisqtopic','q');
+select initcap('this is the new Frame+work', '');
+select initcap('this is the new Framework');
+
+---NVL(2 examples)
+Select NVL('food', 'bard') as COL1,
+       NVL(NULL, 3.14) as COL2;
+       
+Select NVL(NULL, 'bard') as COL1,
+       NVL(12.6, 3.14) as COL2;
+    
+---Coalesce
+select column1, column2, column3, 
+coalesce(column1, column2, column3)
+from (values
+  (1,    2,    3   ),
+  (null, 2,    3   ),
+  (null, null, 3   ),
+  (null, null, null),
+  (1,    null, 3   ),
+  (1,    null, null),
+  (1,    2,    null)
+) v;
+
+
+----Date and Time 
+
+Use Database "FIRST_AGENTDB";
+Select current_date;
+SELECT CURRENT_TIMESTAMP; ---will get date and time 
+SELECT CURRENT_TIME; ---will get the current time
+Use Database "FIRST_AGENTDB";
+USE WAREHOUSE "FIRST_WAREHOUSE";
+SELECT CONVERT_TIMEZONE('UTC', CURRENT_TIMESTAMP) AS UTC_TIMEZONE;--- To convert the timezone 
+---To select the current year
+SELECT DATE_TRUNC('YEAR',CURRENT_DATE) AS YEAR_TIMEZONE;
+---To select the current month
+SELECT DATE_TRUNC('MONTH',CURRENT_DATE) AS MONTH_TIMEZONE;
+---To select the current date
+SELECT DATE_TRUNC('DAY', CURRENT_DATE) AS DATE_TIMEZONE;
